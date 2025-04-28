@@ -1,12 +1,37 @@
-# React + Vite
+## Project information:
+Project name: "Tembo's Grote Circusavontuur"
+Project description: "Een leuke en leerzame app voor kinderen waarin ze de olifant Tembo gaan verzorgen en meer leren over hem en het wintercircus."
+Project type: "Game"
+Project language: "React + Vite + TypeScript"
+Project framework: "React"
+Project platform: "Web"
+Project target audience: "Kinderen"
+Project target devices: "Desktop, Tablet, Mobile"
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Features:
+- "Interactieve verzorging van Tembo"
+- "Educatieve elementen over olifanten en het circus"
+- "Avontuurlijke verkenning van de circusomgeving"
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Project Goals:
+- "Kinderen leren over dierenverzorging en circusleven"
+- "Stimuleren van creativiteit en probleemoplossend vermogen"
+- "Vermaken van kinderen met een leuke en leerzame ervaring"
+- "Ouders betrekken bij het leerproces van hun kinderen"
+- "Een veilige en kindvriendelijke omgeving bieden"
+- "Een platform bieden voor kinderen om hun creativiteit te uiten"
 
-## Expanding the ESLint configuration
+## Model Information:
+* title:	Elephant | Gajah
+* source:	https://sketchfab.com/3d-models/elephant-gajah-d53f4e537d07419caefabef2cd4bbf7b
+* author:	denys4624 (https://sketchfab.com/denys4624)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+## Authors:
+- Louis Dierickx
+- Dries Dhondt
+- Stef Van Boven
