@@ -12,7 +12,7 @@ function TemboModel() {
   return (
     <primitive
       object={scene}
-      scale={0.004}
+      scale={0.002}
       position={[0.5, -1, 0]}
       rotation={[0, 30, 0]}
     />
