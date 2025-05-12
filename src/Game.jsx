@@ -51,6 +51,17 @@ function GameScreen() {
     }
   }
 
+  function completeTask(taskName) {
+    setTasks(prev =>
+      prev.map(task =>
+        task.name === taskName ? { ...task, done: true } : task
+      )
+    );
+    setActiveMode(null);
+    setShowSparkles(true);
+    setTimeout(() => setShowSparkles(false), 2000);
+  }
+
   async function downloadCertificate() {
     if (certificateRef.current) {
       const canvas = await html2canvas(certificateRef.current);
@@ -59,6 +70,80 @@ function GameScreen() {
       link.href = canvas.toDataURL();
       link.click();
     }
+  }
+
+  function handleDraw(e) {
+    if (!isDrawing || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    ctx.clearRect(x - 15, y - 15, 30, 30);
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const totalPixels = imageData.data.length / 4;
+    let transparentPixels = 0;
+
+    for (let i = 3; i < imageData.data.length; i += 4) {
+      if (imageData.data[i] === 0) transparentPixels++;
+    }
+
+    let progress = Math.floor((transparentPixels / totalPixels) * 100);
+    if (progress >= 98) progress = 100;
+    setCleaningProgress(progress);
+
+  }
+
+  function handleTouchDraw(e) {
+    e.preventDefault(); // voorkom scrollen
+  
+    if (!isDrawing || !canvasRef.current) return;
+  
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    const rect = canvas.getBoundingClientRect();
+  
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+  
+    ctx.clearRect(x - 15, y - 15, 30, 30);
+  
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const totalPixels = imageData.data.length / 4;
+    let transparentPixels = 0;
+  
+    for (let i = 3; i < imageData.data.length; i += 4) {
+      if (imageData.data[i] === 0) transparentPixels++;
+    }
+  
+    let progress = Math.floor((transparentPixels / totalPixels) * 100);
+    if (progress >= 98) progress = 100;
+  
+    setCleaningProgress(progress);
+  }  
+
+  function resetCleaning() {
+    setCleaningProgress(0);
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext("2d");
+      ctx.fillStyle = "rgba(139,69,19,0.8)";
+      ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    }
+  }
+
+  function handleFoodDrop(foodId) {
+    setAvailableFood(prev => prev.filter(f => f.id !== foodId));
+    setFeedingGameProgress(prev => Math.min(100, prev + 20));
+  }
+
+  function collectItem(itemId) {
+    setFallingItems(prev => prev.filter(item => item.id !== itemId));
+    setBringingGameProgress(prev => Math.min(100, prev + 10));
   }
 
   useEffect(() => {
@@ -85,56 +170,12 @@ function GameScreen() {
     }
   }, [activeMode]);
 
-  function handleDraw(e) {
-    if (!isDrawing) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.beginPath();
-    ctx.arc(x, y, 20, 0, Math.PI * 2);
-    ctx.fill();
-
-    updateCleaningProgress();
-  }
-
-  function updateCleaningProgress() {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    let dirtyPixels = 0;
-    for (let i = 3; i < pixels.length; i += 4) {
-      if (pixels[i] > 50) dirtyPixels++;
+  useEffect(() => {
+    if (cleaningProgress >= 100) {
+      completeTask("Was Tembo");
     }
-    const totalPixels = (canvas.width * canvas.height);
-    const progress = 100 - Math.round((dirtyPixels / totalPixels) * 100);
-    setCleaningProgress(progress);
-  }
+  }, [cleaningProgress]);
 
-  function resetCleaning() {
-    if (canvasRef.current) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = "rgba(139,69,19,0.8)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      setCleaningProgress(0);
-    }
-  }
-
-  function completeTask(name) {
-    setTasks(prev =>
-      prev.map(task => task.name === name ? { ...task, done: true } : task)
-    );
-    setActiveMode(null);
-    setShowSparkles(true);
-    setTimeout(() => setShowSparkles(false), 4000);
-  }
-
-  // Drag & drop eten bij feeding mode
   useEffect(() => {
     if (activeMode !== "feeding") return;
 
@@ -153,18 +194,12 @@ function GameScreen() {
     return () => clearInterval(interval);
   }, [activeMode]);
 
-  function handleFoodDrop(foodId) {
-    setAvailableFood(prev => prev.filter(f => f.id !== foodId));
-    setFeedingGameProgress(p => Math.min(p + 20, 100));
-  }
-
   useEffect(() => {
     if (feedingGameProgress >= 100) {
       completeTask("Voer Tembo");
     }
   }, [feedingGameProgress]);
 
-  // Vallende items bij bringing mode
   useEffect(() => {
     if (activeMode !== "bringing") return;
 
@@ -193,19 +228,15 @@ function GameScreen() {
     return () => clearInterval(moveInterval);
   }, [activeMode]);
 
-  function collectItem(itemId) {
-    setFallingItems(prev => prev.filter(item => item.id !== itemId));
-    setBringingGameProgress(p => Math.min(p + 10, 100));
-  }
-
   useEffect(() => {
     if (bringingGameProgress >= 100) {
       completeTask("Breng hooi en water");
     }
   }, [bringingGameProgress]);
 
+
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
+    <div className="relative w-full h-screen overflow-hidden bg-black touch-none">
       {showCertificate && <Confetti width={width} height={height} />}
 
       {!showCertificate && !activeMode ? (
@@ -278,10 +309,13 @@ function GameScreen() {
             </Canvas>
             <canvas
               ref={canvasRef}
-              className="absolute inset-0 w-full h-full"
+              className="absolute inset-0 w-full h-full touch-none"
               onMouseDown={() => setIsDrawing(true)}
               onMouseUp={() => setIsDrawing(false)}
               onMouseMove={handleDraw}
+              onTouchStart={() => setIsDrawing(true)}
+              onTouchEnd={() => setIsDrawing(false)}
+              onTouchMove={handleTouchDraw}
             />
           </div>
           <p className="text-white mt-4">{cleaningProgress}% schoon</p>
