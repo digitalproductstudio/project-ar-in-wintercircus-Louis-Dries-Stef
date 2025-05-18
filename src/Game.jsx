@@ -22,8 +22,8 @@ function TemboModel() {
 function GameScreen() {
   const [tasks, setTasks] = useState([
     { id: 1, name: "Was Tembo", done: false },
-    { id: 2, name: "Voer Tembo", done: false },
-    { id: 3, name: "Breng hooi en water", done: false },
+    { id: 2, name: "Voeder Tembo", done: false },
+    { id: 3, name: "Verzamel voedsel", done: false },
   ]);
   const [playerName, setPlayerName] = useState("");
   const [showCertificate, setShowCertificate] = useState(false);
@@ -44,9 +44,9 @@ function GameScreen() {
   function handleTaskClick(task) {
     if (task.name === "Was Tembo") {
       setActiveMode("cleaning");
-    } else if (task.name === "Voer Tembo") {
+    } else if (task.name === "Voeder Tembo") {
       setActiveMode("feeding");
-    } else if (task.name === "Breng hooi en water") {
+    } else if (task.name === "Verzamel voedsel") {
       setActiveMode("bringing");
     }
   }
@@ -95,37 +95,36 @@ function GameScreen() {
     let progress = Math.floor((transparentPixels / totalPixels) * 100);
     if (progress >= 98) progress = 100;
     setCleaningProgress(progress);
-
   }
 
   function handleTouchDraw(e) {
-    e.preventDefault(); // voorkom scrollen
-  
+    e.preventDefault();
+
     if (!isDrawing || !canvasRef.current) return;
-  
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const rect = canvas.getBoundingClientRect();
-  
+
     const touch = e.touches[0];
     const x = touch.clientX - rect.left;
     const y = touch.clientY - rect.top;
-  
+
     ctx.clearRect(x - 15, y - 15, 30, 30);
-  
+
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const totalPixels = imageData.data.length / 4;
     let transparentPixels = 0;
-  
+
     for (let i = 3; i < imageData.data.length; i += 4) {
       if (imageData.data[i] === 0) transparentPixels++;
     }
-  
+
     let progress = Math.floor((transparentPixels / totalPixels) * 100);
     if (progress >= 98) progress = 100;
-  
+
     setCleaningProgress(progress);
-  }  
+  }
 
   function resetCleaning() {
     setCleaningProgress(0);
@@ -187,7 +186,7 @@ function GameScreen() {
         id: Math.random(),
         emoji: randomFood,
         x: Math.random() * (window.innerWidth - 50),
-        y: window.innerHeight - 100,
+        y: 0,
       }]);
     }, 1500);
 
@@ -196,7 +195,7 @@ function GameScreen() {
 
   useEffect(() => {
     if (feedingGameProgress >= 100) {
-      completeTask("Voer Tembo");
+      completeTask("Voeder Tembo");
     }
   }, [feedingGameProgress]);
 
@@ -230,10 +229,9 @@ function GameScreen() {
 
   useEffect(() => {
     if (bringingGameProgress >= 100) {
-      completeTask("Breng hooi en water");
+      completeTask("Verzamel voedsel");
     }
   }, [bringingGameProgress]);
-
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black touch-none">
@@ -328,7 +326,7 @@ function GameScreen() {
         </div>
       ) : activeMode === "feeding" ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-800 bg-opacity-90 z-50">
-          <p className="text-3xl text-white mb-4">Voer Tembo!</p>
+          <p className="text-3xl text-white mb-4">Voeder Tembo!</p>
           <div className="relative w-full h-1/2">
             <div
               id="tembo-mouth"
@@ -343,7 +341,12 @@ function GameScreen() {
                 dragElastic={0.5}
                 onDragEnd={(e, info) => {
                   const mouth = document.getElementById("tembo-mouth").getBoundingClientRect();
-                  if (info.point.x > mouth.left && info.point.x < mouth.right && info.point.y > mouth.top && info.point.y < mouth.bottom) {
+                  if (
+                    info.point.x > mouth.left &&
+                    info.point.x < mouth.right &&
+                    info.point.y > mouth.top &&
+                    info.point.y < mouth.bottom
+                  ) {
                     handleFoodDrop(food.id);
                   }
                 }}
