@@ -268,9 +268,8 @@ function GameScreen() {
               <button
                 key={task.id}
                 onClick={() => handleTaskClick(task)}
-                className={`px-6 py-3 m-2 rounded-2xl text-xl shadow-md ${
-                  task.done ? "bg-green-400 text-white" : "bg-orange-400 text-white"
-                }`}
+                className={`px-6 py-3 m-2 rounded-2xl text-xl shadow-md ${task.done ? "bg-green-400 text-white" : "bg-orange-400 text-white"
+                  }`}
               >
                 {task.done ? `✅ ${task.name}` : task.name}
               </button>
@@ -327,20 +326,34 @@ function GameScreen() {
       ) : activeMode === "feeding" ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-800 bg-opacity-90 z-50">
           <p className="text-3xl text-white mb-4">Voeder Tembo!</p>
+
           <div className="relative w-full h-1/2">
-            <div
-              id="tembo-mouth"
-              className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-pink-300 rounded-full flex items-center justify-center"
-            >
-              👄
+            {/* 3D Tembo model */}
+            <div className="relative w-64 h-64 mx-auto">
+              <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
+                <ambientLight />
+                <directionalLight position={[2, 2, 5]} />
+                <TemboModel />
+              </Canvas>
+              {/* Onzichtbare "mond"-hitbox */}
+              <div
+                id="tembo-mouth"
+                className="absolute top-[90px] left-1/2 transform -translate-x-1/2 w-16 h-16"
+              // Styling om te debuggen (eventueel verwijderen):
+              // style={{ backgroundColor: "rgba(255, 0, 0, 0.3)" }}
+              />
             </div>
+
+            {/* Voedselitems */}
             {availableFood.map(food => (
               <motion.div
                 key={food.id}
                 drag
                 dragElastic={0.5}
                 onDragEnd={(e, info) => {
-                  const mouth = document.getElementById("tembo-mouth").getBoundingClientRect();
+                  const mouth = document
+                    .getElementById("tembo-mouth")
+                    .getBoundingClientRect();
                   if (
                     info.point.x > mouth.left &&
                     info.point.x < mouth.right &&
@@ -350,18 +363,24 @@ function GameScreen() {
                     handleFoodDrop(food.id);
                   }
                 }}
-                className="absolute text-4xl cursor-pointer"
+                className="absolute text-4xl cursor-pointer z-20"
                 style={{ top: food.y, left: food.x }}
               >
                 {food.emoji}
               </motion.div>
             ))}
           </div>
+
+          {/* Voortgangsbalk */}
           <div className="mt-6 w-1/2 bg-white rounded-full overflow-hidden">
-            <div className="bg-green-400 h-6" style={{ width: `${feedingGameProgress}%` }}></div>
+            <div
+              className="bg-green-400 h-6"
+              style={{ width: `${feedingGameProgress}%` }}
+            ></div>
           </div>
           <p className="text-white mt-2">{feedingGameProgress}% gevoerd</p>
         </div>
+
       ) : activeMode === "bringing" ? (
         <div className="absolute inset-0 bg-blue-800 bg-opacity-90 flex flex-col items-center justify-center z-50">
           <p className="text-3xl text-white mb-4">Vang hooi en water!</p>
