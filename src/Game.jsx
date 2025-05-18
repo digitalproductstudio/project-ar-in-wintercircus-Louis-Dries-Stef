@@ -12,7 +12,7 @@ function TemboModel() {
   return (
     <primitive
       object={scene}
-      scale={0.002}
+      scale={0.003}
       position={[0.5, -1, 0]}
       rotation={[0, 30, 0]}
     />
@@ -339,8 +339,6 @@ function GameScreen() {
               <div
                 id="tembo-mouth"
                 className="absolute top-[90px] left-1/2 transform -translate-x-1/2 w-16 h-16"
-              // Styling om te debuggen (eventueel verwijderen):
-              // style={{ backgroundColor: "rgba(255, 0, 0, 0.3)" }}
               />
             </div>
 
