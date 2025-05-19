@@ -45,6 +45,7 @@ function GameScreen() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [showSparkles, setShowSparkles] = useState(false);
   const canvasRef = useRef(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const weetjes = [
     "het wintercircus vroeger een grote garage was? Hier stonden toen heel veel auto’s net een museum",
@@ -258,19 +259,57 @@ function GameScreen() {
     }
   }, [bringingGameProgress]);
 
+  useEffect(() => {
+    if (allDone) {
+      setShowCertificate(true);
+    }
+  }, [allDone]);
+
+  function resetGame() {
+    setTasks([
+      { id: 1, name: "Was Tembo", done: false, image: "./sponge.png" },
+      { id: 2, name: "Voeder Tembo", done: false, image: "./food.png" },
+      { id: 3, name: "Verzamel voedsel", done: false, image: "./basket.png" },
+    ]);
+    setPlayerName("");
+    setShowCertificate(false);
+    setCleaningProgress(0);
+    setFeedingGameProgress(0);
+    setBringingGameProgress(0);
+
+    // Camera opnieuw starten
+    setTimeout(() => {
+      const video = document.getElementById("camera");
+      if (video && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then((stream) => {
+            video.srcObject = stream;
+          })
+          .catch((err) => {
+            console.error("Error accessing camera: ", err);
+          });
+      }
+    }, 100);
+  }
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black touch-none">
       {showCertificate && <Confetti width={width} height={height} />}
 
+      {/* Zet de camera-video HIER, zodat hij altijd zichtbaar is behalve bij certificaat */}
+      {!showCertificate && (
+        <video
+          id="camera"
+          autoPlay
+          playsInline
+          muted
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+
       {!showCertificate && !activeMode ? (
         <>
-          <video
-            id="camera"
-            autoPlay
-            playsInline
-            muted
-            className="absolute inset-0 w-full h-full object-cover"
-          />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
             <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
               <ambientLight />
@@ -327,11 +366,9 @@ function GameScreen() {
               <motion.button
                 key={task.id}
                 onClick={() => handleTaskClick(task)}
-                className={`px-4 py-2 m-2 rounded-2xl text-xl shadow-md flex flex-col items-center ${
-                  task.done
-                    ? "bg-green-400 text-white"
-                    : "bg-orange-400 text-white"
-                }`}
+                className={`w-20 h-20 m-3 flex items-center justify-center rounded-full shadow-md
+      ${task.done ? "bg-green-400" : "bg-orange-400"}
+    `}
                 initial={{ opacity: 0, y: 30, scale: 0.8 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{
@@ -341,14 +378,14 @@ function GameScreen() {
                 }}
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.95 }}
+                style={{ aspectRatio: "1/1", border: "none" }}
               >
                 <img
                   src={task.image}
                   alt={task.name}
-                  className="w-16 h-16 object-contain mb-2"
+                  className="w-10 h-10 object-contain"
                   style={{ filter: task.done ? "grayscale(1)" : "none" }}
                 />
-                {task.done}
               </motion.button>
             ))}
           </div>
@@ -505,21 +542,55 @@ function GameScreen() {
           <p className="text-white mt-2">{bringingGameProgress}% verzameld</p>
         </div>
       ) : (
-        <div
-          ref={certificateRef}
-          className="w-full max-w-md mx-auto mt-20 bg-yellow-100 p-8 rounded-2xl shadow-2xl text-center space-y-4"
-        >
-          <h2 className="text-3xl font-extrabold text-orange-700">
-            🎖️ Officieel Certificaat 🎖️
-          </h2>
-          <p className="text-lg text-orange-600">Dit certificeert dat</p>
-          <h3 className="text-4xl font-bold text-green-700">{playerName}</h3>
-          <p className="text-lg text-orange-600">
-            met succes Tembo heeft verzorgd!
-          </p>
-          <p className="text-sm text-gray-500">
-            Tembo's Grote Circusavontuur - {new Date().toLocaleDateString()}
-          </p>
+        <div className="flex flex-col justify-center items-center min-h-screen bg-black bg-opacity-80 fixed inset-0 z-50">
+          <div
+            ref={certificateRef}
+            className="w-full max-w-md mx-auto bg-yellow-100 p-8 rounded-2xl shadow-2xl text-center space-y-4"
+          >
+            <h2 className="text-3xl font-extrabold text-orange-700">
+              🎖️ Officieel Certificaat 🎖️
+            </h2>
+            <p className="text-lg text-orange-600">Dit certificeert dat</p>
+            {/* Inputveld mag altijd zichtbaar behalve tijdens downloaden */}
+            {!isDownloading && (
+              <input
+                type="text"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                className="border-2 border-white p-2 rounded-lg text-lg bg-black text-white placeholder-white mb-2"
+                placeholder="Jouw naam"
+              />
+            )}
+            <h3 className="text-4xl font-bold text-green-700">{playerName}</h3>
+            <p className="text-lg text-orange-600">
+              met succes Tembo heeft verzorgd!
+            </p>
+            <p className="text-sm text-gray-500">
+              Tembo's Grote Circusavontuur - {new Date().toLocaleDateString()}
+            </p>
+            {/* Knoppen alleen tonen als NIET aan het downloaden */}
+            {!isDownloading && (
+              <>
+                <button
+                  onClick={async () => {
+                    setIsDownloading(true);
+                    await new Promise((r) => setTimeout(r, 100));
+                    await downloadCertificate();
+                    setIsDownloading(false);
+                  }}
+                  className="mt-4 bg-orange-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-orange-600"
+                >
+                  Download Certificaat
+                </button>
+                <button
+                  onClick={resetGame}
+                  className="mt-4 bg-green-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-green-600"
+                >
+                  Speel opnieuw
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
       {showCertificate && (
