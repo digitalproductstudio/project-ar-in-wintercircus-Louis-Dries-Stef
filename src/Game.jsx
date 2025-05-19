@@ -4,15 +4,17 @@ import html2canvas from "html2canvas";
 import Confetti from "react-confetti";
 import { motion } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useGLTF, Sparkles } from "@react-three/drei";
+import { OrbitControls, useGLTF, Sparkles, Html } from "@react-three/drei";
 import { useWindowSize } from "@react-hook/window-size";
 
-function TemboModel() {
+function TemboModel({ screenWidth }) {
   const { scene } = useGLTF("/tembo.glb");
+  // Schaal tussen 0.0015 (mobiel) en 0.003 (desktop)
+  const scale = screenWidth < 600 ? 0.0015 : screenWidth < 900 ? 0.002 : 0.003;
   return (
     <primitive
       object={scene}
-      scale={0.003}
+      scale={scale}
       position={[0.5, -1, 0]}
       rotation={[0, 30, 0]}
     />
@@ -39,7 +41,15 @@ function GameScreen() {
   const [showSparkles, setShowSparkles] = useState(false);
   const canvasRef = useRef(null);
 
-  const allDone = tasks.every(task => task.done);
+  const weetjes = [
+    "het wintercircus vroeger een grote garage was? Hier stonden toen heel veel auto’s net een museum",
+    "Lang geleden, in 1894, werd er in Gent een speciaal gebouw gemaakt waar het altijd circus kon zijn, zelfs in de winter. ",
+    "Tembo vroeger in de dierentuin van Gent woonde? Veel kinderen gingen naar hem kijken. Hij was heel bekend en iedereen vond hem leuk.",
+    "Toen de dierentuin dichtging, moest Tembo verhuizen naar een andere dierentuin. Veel mensen vonden dat jammer, want ze waren dol op hem.",
+  ];
+  const [activeWeetje, setActiveWeetje] = useState(null);
+
+  const allDone = tasks.every((task) => task.done);
 
   function handleTaskClick(task) {
     if (task.name === "Was Tembo") {
@@ -52,8 +62,8 @@ function GameScreen() {
   }
 
   function completeTask(taskName) {
-    setTasks(prev =>
-      prev.map(task =>
+    setTasks((prev) =>
+      prev.map((task) =>
         task.name === taskName ? { ...task, done: true } : task
       )
     );
@@ -136,19 +146,20 @@ function GameScreen() {
   }
 
   function handleFoodDrop(foodId) {
-    setAvailableFood(prev => prev.filter(f => f.id !== foodId));
-    setFeedingGameProgress(prev => Math.min(100, prev + 20));
+    setAvailableFood((prev) => prev.filter((f) => f.id !== foodId));
+    setFeedingGameProgress((prev) => Math.min(100, prev + 20));
   }
 
   function collectItem(itemId) {
-    setFallingItems(prev => prev.filter(item => item.id !== itemId));
-    setBringingGameProgress(prev => Math.min(100, prev + 10));
+    setFallingItems((prev) => prev.filter((item) => item.id !== itemId));
+    setBringingGameProgress((prev) => Math.min(100, prev + 10));
   }
 
   useEffect(() => {
     const video = document.getElementById("camera");
     if (navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true })
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
         .then((stream) => {
           video.srcObject = stream;
         })
@@ -180,14 +191,18 @@ function GameScreen() {
 
     const interval = setInterval(() => {
       const foodTypes = ["🍌", "🍎", "🥥", "🥕", "💧"];
-      const randomFood = foodTypes[Math.floor(Math.random() * foodTypes.length)];
+      const randomFood =
+        foodTypes[Math.floor(Math.random() * foodTypes.length)];
 
-      setAvailableFood(prev => [...prev, {
-        id: Math.random(),
-        emoji: randomFood,
-        x: Math.random() * (window.innerWidth - 50),
-        y: 0,
-      }]);
+      setAvailableFood((prev) => [
+        ...prev,
+        {
+          id: Math.random(),
+          emoji: randomFood,
+          x: Math.random() * (window.innerWidth - 50),
+          y: 0,
+        },
+      ]);
     }, 1500);
 
     return () => clearInterval(interval);
@@ -206,12 +221,15 @@ function GameScreen() {
       const items = ["🌾", "💧"];
       const randomItem = items[Math.floor(Math.random() * items.length)];
 
-      setFallingItems(prev => [...prev, {
-        id: Math.random(),
-        emoji: randomItem,
-        x: Math.random() * (window.innerWidth - 50),
-        y: 0,
-      }]);
+      setFallingItems((prev) => [
+        ...prev,
+        {
+          id: Math.random(),
+          emoji: randomItem,
+          x: Math.random() * (window.innerWidth - 50),
+          y: 0,
+        },
+      ]);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -221,7 +239,9 @@ function GameScreen() {
     if (activeMode !== "bringing") return;
 
     const moveInterval = setInterval(() => {
-      setFallingItems(prev => prev.map(item => ({ ...item, y: item.y + 5 })));
+      setFallingItems((prev) =>
+        prev.map((item) => ({ ...item, y: item.y + 5 }))
+      );
     }, 50);
 
     return () => clearInterval(moveInterval);
@@ -255,7 +275,41 @@ function GameScreen() {
                 animate={{ y: allDone ? [0, 0.2, -0.2, 0.2, 0] : 0 }}
                 transition={{ duration: 1 }}
               >
-                <TemboModel />
+                <TemboModel screenWidth={width} />
+                {/* Interactieve cirkels */}
+                {weetjes.map((_, i, arr) => (
+                  <mesh
+                    key={i}
+                    position={[
+                      Math.cos((i / arr.length) * 2 * Math.PI) * 2, // verdeel over de cirkel
+                      0.3 + (i === 1 ? 1 : 0), // optioneel: Y-positie aanpassen voor variatie
+                      Math.sin((i / arr.length) * 2 * Math.PI) * 2,
+                    ]}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveWeetje(i);
+                    }}
+                  >
+                    <sphereGeometry args={[0.15, 32, 32]} />
+                    <meshStandardMaterial
+                      color="orange"
+                      transparent
+                      opacity={0.7}
+                    />
+                    <Html center>
+                      <span
+                        style={{
+                          color: "white",
+                          fontWeight: "bold",
+                          pointerEvents: "none",
+                          textShadow: "0 0 5px #000",
+                        }}
+                      >
+                        ?
+                      </span>
+                    </Html>
+                  </mesh>
+                ))}
                 {showSparkles && (
                   <Sparkles count={30} scale={2} size={3} color="white" />
                 )}
@@ -264,12 +318,15 @@ function GameScreen() {
             </Canvas>
           </div>
           <div className="absolute bottom-1 w-full flex flex-wrap items-center justify-center z-10 pointer-events-auto">
-            {tasks.map(task => (
+            {tasks.map((task) => (
               <button
                 key={task.id}
                 onClick={() => handleTaskClick(task)}
-                className={`px-6 py-3 m-2 rounded-2xl text-xl shadow-md ${task.done ? "bg-green-400 text-white" : "bg-orange-400 text-white"
-                  }`}
+                className={`px-6 py-3 m-2 rounded-2xl text-xl shadow-md ${
+                  task.done
+                    ? "bg-green-400 text-white"
+                    : "bg-orange-400 text-white"
+                }`}
               >
                 {task.done ? `✅ ${task.name}` : task.name}
               </button>
@@ -277,7 +334,9 @@ function GameScreen() {
           </div>
           {allDone && (
             <div className="absolute bottom-24 w-full flex flex-col items-center space-y-4">
-              <p className="text-lg text-white">Vul je naam in voor je certificaat:</p>
+              <p className="text-lg text-white">
+                Vul je naam in voor je certificaat:
+              </p>
               <input
                 type="text"
                 value={playerName}
@@ -343,7 +402,7 @@ function GameScreen() {
             </div>
 
             {/* Voedselitems */}
-            {availableFood.map(food => (
+            {availableFood.map((food) => (
               <motion.div
                 key={food.id}
                 drag
@@ -378,12 +437,11 @@ function GameScreen() {
           </div>
           <p className="text-white mt-2">{feedingGameProgress}% gevoerd</p>
         </div>
-
       ) : activeMode === "bringing" ? (
         <div className="absolute inset-0 bg-blue-800 bg-opacity-90 flex flex-col items-center justify-center z-50">
           <p className="text-3xl text-white mb-4">Vang hooi en water!</p>
           <div className="relative w-full h-1/2">
-            {fallingItems.map(item => (
+            {fallingItems.map((item) => (
               <motion.div
                 key={item.id}
                 className="absolute text-4xl"
@@ -395,26 +453,56 @@ function GameScreen() {
             ))}
           </div>
           <div className="mt-6 w-1/2 bg-white rounded-full overflow-hidden">
-            <div className="bg-blue-400 h-6" style={{ width: `${bringingGameProgress}%` }}></div>
+            <div
+              className="bg-blue-400 h-6"
+              style={{ width: `${bringingGameProgress}%` }}
+            ></div>
           </div>
           <p className="text-white mt-2">{bringingGameProgress}% verzameld</p>
         </div>
       ) : (
-        <div ref={certificateRef} className="w-full max-w-md mx-auto mt-20 bg-yellow-100 p-8 rounded-2xl shadow-2xl text-center space-y-4">
-          <h2 className="text-3xl font-extrabold text-orange-700">🎖️ Officieel Certificaat 🎖️</h2>
+        <div
+          ref={certificateRef}
+          className="w-full max-w-md mx-auto mt-20 bg-yellow-100 p-8 rounded-2xl shadow-2xl text-center space-y-4"
+        >
+          <h2 className="text-3xl font-extrabold text-orange-700">
+            🎖️ Officieel Certificaat 🎖️
+          </h2>
           <p className="text-lg text-orange-600">Dit certificeert dat</p>
           <h3 className="text-4xl font-bold text-green-700">{playerName}</h3>
-          <p className="text-lg text-orange-600">met succes Tembo heeft verzorgd!</p>
-          <p className="text-sm text-gray-500">Tembo's Grote Circusavontuur - {new Date().toLocaleDateString()}</p>
+          <p className="text-lg text-orange-600">
+            met succes Tembo heeft verzorgd!
+          </p>
+          <p className="text-sm text-gray-500">
+            Tembo's Grote Circusavontuur - {new Date().toLocaleDateString()}
+          </p>
         </div>
       )}
       {showCertificate && (
-        <button
-          onClick={downloadCertificate}
-          className="mt-6 bg-orange-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-orange-600"
-        >
-          Download Certificaat
-        </button>
+        <div className="flex justify-center items-center">
+          <button
+            onClick={downloadCertificate}
+            className="mt-6 bg-orange-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-orange-600"
+          >
+            Download Certificaat
+          </button>
+        </div>
+      )}
+      {activeWeetje !== null && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60">
+          <div className="bg-white rounded-2xl p-8 max-w-xs text-center shadow-xl">
+            <p className="text-lg font-bold text-orange-600 mb-4">
+              Wist je dat?
+            </p>
+            <p className="text-gray-800">{weetjes[activeWeetje]}</p>
+            <button
+              className="mt-6 bg-orange-500 text-white px-6 py-2 rounded-xl text-lg hover:bg-orange-600"
+              onClick={() => setActiveWeetje(null)}
+            >
+              Sluiten
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
