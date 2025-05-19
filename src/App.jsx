@@ -5,7 +5,7 @@ function App() {
   const [started, setStarted] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-yellow-100 to-orange-300 p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-yellow-100 to-orange-300 ">
       {!started ? (
         <div className="text-center space-y-6">
           <h1 className="text-5xl font-extrabold text-orange-800 drop-shadow-lg">

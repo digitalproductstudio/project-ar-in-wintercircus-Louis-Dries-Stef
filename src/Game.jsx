@@ -8,7 +8,7 @@ import { OrbitControls, useGLTF, Sparkles, Html } from "@react-three/drei";
 import { useWindowSize } from "@react-hook/window-size";
 
 function TemboModel({ screenWidth }) {
-  const { scene } = useGLTF("/tembo.glb");
+  const { scene } = useGLTF("./tembo.glb");
   // Schaal tussen 0.0015 (mobiel) en 0.003 (desktop)
   const scale = screenWidth < 600 ? 0.0015 : screenWidth < 900 ? 0.002 : 0.003;
   return (
@@ -23,9 +23,14 @@ function TemboModel({ screenWidth }) {
 
 function GameScreen() {
   const [tasks, setTasks] = useState([
-    { id: 1, name: "Was Tembo", done: false },
-    { id: 2, name: "Voeder Tembo", done: false },
-    { id: 3, name: "Verzamel voedsel", done: false },
+    { id: 1, name: "Was Tembo", done: false, image: "./sponge.png" },
+    { id: 2, name: "Voeder Tembo", done: false, image: "./food.png" },
+    {
+      id: 3,
+      name: "Verzamel voedsel",
+      done: false,
+      image: "./basket.png",
+    },
   ]);
   const [playerName, setPlayerName] = useState("");
   const [showCertificate, setShowCertificate] = useState(false);
@@ -266,7 +271,7 @@ function GameScreen() {
             muted
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
             <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
               <ambientLight />
               <directionalLight position={[2, 2, 5]} />
@@ -296,7 +301,7 @@ function GameScreen() {
                       transparent
                       opacity={0.7}
                     />
-                    <Html center>
+                    <Html center zIndexRange={[0, 0]} portal={null}>
                       <span
                         style={{
                           color: "white",
@@ -318,18 +323,33 @@ function GameScreen() {
             </Canvas>
           </div>
           <div className="absolute bottom-1 w-full flex flex-wrap items-center justify-center z-10 pointer-events-auto">
-            {tasks.map((task) => (
-              <button
+            {tasks.map((task, idx) => (
+              <motion.button
                 key={task.id}
                 onClick={() => handleTaskClick(task)}
-                className={`px-6 py-3 m-2 rounded-2xl text-xl shadow-md ${
+                className={`px-4 py-2 m-2 rounded-2xl text-xl shadow-md flex flex-col items-center ${
                   task.done
                     ? "bg-green-400 text-white"
                     : "bg-orange-400 text-white"
                 }`}
+                initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  delay: idx * 0.1,
+                  type: "spring",
+                  stiffness: 200,
+                }}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {task.done ? `✅ ${task.name}` : task.name}
-              </button>
+                <img
+                  src={task.image}
+                  alt={task.name}
+                  className="w-16 h-16 object-contain mb-2"
+                  style={{ filter: task.done ? "grayscale(1)" : "none" }}
+                />
+                {task.done}
+              </motion.button>
             ))}
           </div>
           {allDone && (
@@ -356,6 +376,14 @@ function GameScreen() {
         </>
       ) : activeMode === "cleaning" ? (
         <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50">
+          <button
+            onClick={() => setActiveMode(null)}
+            className="absolute top-4 left-4 z-50 bg-gray-700 bg-opacity-70 hover:bg-gray-900 text-white rounded-full p-3 shadow-lg"
+            aria-label="Terug"
+          >
+            {/* Unicode pijl of SVG */}
+            <span style={{ fontSize: 24 }}>←</span>
+          </button>
           <p className="text-white text-2xl mb-4">Maak Tembo schoon!</p>
           <div className="relative w-64 h-64">
             <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
@@ -384,6 +412,14 @@ function GameScreen() {
         </div>
       ) : activeMode === "feeding" ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-800 bg-opacity-90 z-50">
+          <button
+            onClick={() => setActiveMode(null)}
+            className="absolute top-4 left-4 z-50 bg-gray-700 bg-opacity-70 hover:bg-gray-900 text-white rounded-full p-3 shadow-lg"
+            aria-label="Terug"
+          >
+            {/* Unicode pijl of SVG */}
+            <span style={{ fontSize: 24 }}>←</span>
+          </button>
           <p className="text-3xl text-white mb-4">Voeder Tembo!</p>
 
           <div className="relative w-full h-1/2">
@@ -439,6 +475,14 @@ function GameScreen() {
         </div>
       ) : activeMode === "bringing" ? (
         <div className="absolute inset-0 bg-blue-800 bg-opacity-90 flex flex-col items-center justify-center z-50">
+          <button
+            onClick={() => setActiveMode(null)}
+            className="absolute top-4 left-4 z-50 bg-gray-700 bg-opacity-70 hover:bg-gray-900 text-white rounded-full p-3 shadow-lg"
+            aria-label="Terug"
+          >
+            {/* Unicode pijl of SVG */}
+            <span style={{ fontSize: 24 }}>←</span>
+          </button>
           <p className="text-3xl text-white mb-4">Vang hooi en water!</p>
           <div className="relative w-full h-1/2">
             {fallingItems.map((item) => (
@@ -491,12 +535,12 @@ function GameScreen() {
       {activeWeetje !== null && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60">
           <div className="bg-white rounded-2xl p-8 max-w-xs text-center shadow-xl">
-            <p className="text-lg font-bold text-orange-600 mb-4">
+            <p className="text-xl font-bold text-orange-600 mb-4">
               Wist je dat?
             </p>
             <p className="text-gray-800">{weetjes[activeWeetje]}</p>
             <button
-              className="mt-6 bg-orange-500 text-white px-6 py-2 rounded-xl text-lg hover:bg-orange-600"
+              className="mt-6 bg-orange-500 text-white px-4 py-1 rounded-xl text-sm hover:bg-orange-600"
               onClick={() => setActiveWeetje(null)}
             >
               Sluiten
