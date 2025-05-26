@@ -60,3 +60,26 @@ body {
 .read-the-docs {
   color: #888;
 }
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #fdf6e3;
+}
+
+.game-screen {
+  padding: 20px;
+  text-align: center;
+}
+
+.task-list {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.task-list img {
+  width: 60px;
+  height: 60px;
+}

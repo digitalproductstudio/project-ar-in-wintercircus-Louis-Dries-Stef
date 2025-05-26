@@ -5,7 +5,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-   "dev": "vite",
+    "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@react-hook/window-size": "^3.1.1",
-    "@react-three/drei": "^10.0.7",
+    "@react-three/drei": "^10.0.8",
     "@react-three/fiber": "^9.1.2",
     "dotenv": "^16.5.0",
     "env": "^0.0.2",
@@ -23,6 +23,7 @@
     "react": "^19.0.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.0.0",
+    "react-webcam": "^7.2.0",
     "three": "^0.176.0"
   },
   "devDependencies": {
