@@ -29,6 +29,7 @@ function CleaningGame({
           <TemboModel
             screenWidth={screenWidth}
             rotation={[0, Math.PI, 0]} // 180 graden draaien rond Y-as
+            position={[0, -1, 0]} // Licht naar beneden gericht
           />
         </Canvas>
         <canvas
