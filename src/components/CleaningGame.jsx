@@ -1,4 +1,4 @@
-import { Canvas } from "@react-three/fiber";
+ import { Canvas } from "@react-three/fiber";
 import TemboModel from "./TemboModel";
 
 function CleaningGame({
@@ -9,7 +9,6 @@ function CleaningGame({
   handleTouchDraw,
   canvasRef,
   setIsDrawing,
-  isDrawing,
   screenWidth
 }) {
   return (
