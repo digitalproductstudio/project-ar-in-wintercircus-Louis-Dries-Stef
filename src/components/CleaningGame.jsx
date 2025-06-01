@@ -9,6 +9,7 @@ function CleaningGame({
   handleTouchDraw,
   canvasRef,
   setIsDrawing,
+  isDrawing,
   screenWidth
 }) {
   return (
@@ -25,7 +26,10 @@ function CleaningGame({
         <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
           <ambientLight />
           <directionalLight position={[2, 2, 5]} />
-          <TemboModel screenWidth={screenWidth} position={[0, -0.2, 0]} rotation={[-0.2, 2.7, 0]} scale={10} zIndexRange={[1000, 1000]} />
+          <TemboModel
+            screenWidth={screenWidth}
+            rotation={[0, Math.PI, 0]} // 180 graden draaien rond Y-as
+          />
         </Canvas>
         <canvas
           ref={canvasRef}
@@ -36,6 +40,9 @@ function CleaningGame({
           onTouchStart={() => setIsDrawing(true)}
           onTouchEnd={() => setIsDrawing(false)}
           onTouchMove={handleTouchDraw}
+          style={{
+            cursor: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='48'><text y='50%' font-size='24'>🧽</text></svg>") 16 0, auto`,
+          }}
         />
       </div>
       <p className="text-white mt-4">{cleaningProgress}% schoon</p>
