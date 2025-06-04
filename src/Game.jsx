@@ -45,8 +45,8 @@ function GameScreen() {
   const weetjes = [
     "het wintercircus vroeger een grote garage was? Hier stonden toen heel veel auto’s net een museum",
     "Lang geleden, in 1894, werd er in Gent een speciaal gebouw gemaakt waar het altijd circus kon zijn, zelfs in de winter. ",
-    "Tembo vroeger in de dierentuin van Gent woonde? Veel kinderen gingen naar hem kijken. Hij was heel bekend en iedereen vond hem leuk.",
-    "Toen de dierentuin dichtging, moest Tembo verhuizen naar een andere dierentuin. Veel mensen vonden dat jammer, want ze waren dol op hem.",
+    "Er honderd jaar geleden al paarden en olifanten door het Wintercircus liepen, toen het gebouw ook echt als een circus werd gebruikt?",
+    "je in de buik van tembo kunt klimmen om naar een voorstelling te kijken?",
   ];
   const [activeWeetje, setActiveWeetje] = useState(null);
 
