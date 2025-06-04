@@ -1,5 +1,7 @@
 /* eslint-disable no-unused-vars */
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import itemPickUpSound from "/sounds/item-pick-up.mp3";
 
 function BringingGame({
   setActiveMode,
@@ -7,6 +9,22 @@ function BringingGame({
   collectItem,
   bringingGameProgress
 }) {
+  const pickUpAudioRef = useRef(null);
+
+  useEffect(() => {
+    pickUpAudioRef.current = new Audio(itemPickUpSound);
+  }, []);
+
+  const handleItemClick = (id) => {
+    if (pickUpAudioRef.current) {
+      pickUpAudioRef.current.currentTime = 0;
+      pickUpAudioRef.current.play().catch((err) =>
+        console.warn("Geluid kon niet afgespeeld worden:", err)
+      );
+    }
+    collectItem(id);
+  };
+
   return (
     <div className="absolute inset-0 bg-blue-800 bg-opacity-90 flex flex-col items-center justify-center z-50">
       <button
@@ -27,7 +45,7 @@ function BringingGame({
               left: item.x,
               cursor: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>🧺</text></svg>") 16 0, auto`,
             }}
-            onClick={() => collectItem(item.id)}
+            onClick={() => handleItemClick(item.id)}
           >
             {item.emoji}
           </motion.div>
