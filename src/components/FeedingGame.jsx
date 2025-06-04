@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Canvas } from "@react-three/fiber";
 import TemboModel from "./TemboModel";
 import { motion } from "framer-motion";
@@ -24,11 +25,15 @@ function FeedingGame({
           <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
             <ambientLight />
             <directionalLight position={[2, 2, 5]} />
-            <TemboModel screenWidth={screenWidth} />
+            <TemboModel
+            screenWidth={screenWidth}
+            rotation={[0, Math.PI, 0]}
+            position={[0, -1, 0]}
+          />
           </Canvas>
           <div
             id="tembo-mouth"
-            className="absolute top-[90px] bg-black left-1/2 transform -translate-x-1/2 w-16 h-16"
+            className="absolute top-[60px] left-1/2 transform -translate-x-1/2 w-[6rem] h-[5.3rem]"
           />
         </div>
         {availableFood.map((food) => (
