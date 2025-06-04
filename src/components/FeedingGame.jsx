@@ -1,7 +1,9 @@
 /* eslint-disable no-unused-vars */
+import { useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import TemboModel from "./TemboModel";
 import { motion } from "framer-motion";
+import eatSound from "/sounds/eat.mp3";
 
 function FeedingGame({
   setActiveMode,
@@ -10,6 +12,16 @@ function FeedingGame({
   handleFoodDrop,
   screenWidth
 }) {
+  const eatAudioRef = useRef(null);
+
+  useEffect(() => {
+    eatAudioRef.current = new Audio(eatSound);
+    return () => {
+      eatAudioRef.current?.pause();
+      eatAudioRef.current.src = "";
+    };
+  }, []);
+
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-800 bg-opacity-90 z-50">
       <button
@@ -26,10 +38,10 @@ function FeedingGame({
             <ambientLight />
             <directionalLight position={[2, 2, 5]} />
             <TemboModel
-            screenWidth={screenWidth}
-            rotation={[0, Math.PI, 0]}
-            position={[0, -1, 0]}
-          />
+              screenWidth={screenWidth}
+              rotation={[0, Math.PI, 0]}
+              position={[0, -1, 0]}
+            />
           </Canvas>
           <div
             id="tembo-mouth"
@@ -51,6 +63,12 @@ function FeedingGame({
                 info.point.y > mouth.top &&
                 info.point.y < mouth.bottom
               ) {
+                if (eatAudioRef.current) {
+                  eatAudioRef.current.currentTime = 0;
+                  eatAudioRef.current.play().catch((e) => {
+                    console.warn("Geluid kon niet worden afgespeeld:", e);
+                  });
+                }
                 handleFoodDrop(food.id);
               }
             }}
