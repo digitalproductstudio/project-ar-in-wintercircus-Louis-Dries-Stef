@@ -15,6 +15,7 @@ import BringingGame from "./components/BringingGame";
 import CertificateModal from "./components/CertificateModal";
 import WeetjeModal from "./components/WeetjeModal";
 import CameraVideo from "./components/CameraVideo";
+import taskCompleteSound from "/sounds/complete.mp3";
 
 function GameScreen() {
   const [tasks, setTasks] = useState([
@@ -41,6 +42,7 @@ function GameScreen() {
   const [showSparkles, setShowSparkles] = useState(false);
   const canvasRef = useRef(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const taskCompleteAudioRef = useRef(null);
 
   const weetjes = [
     "het wintercircus vroeger een grote garage was? Hier stonden toen heel veel auto’s net een museum",
@@ -63,6 +65,13 @@ function GameScreen() {
   }
 
   function completeTask(taskName) {
+    if (taskCompleteAudioRef.current) {
+      taskCompleteAudioRef.current.currentTime = 0;
+      taskCompleteAudioRef.current.play().catch((e) => {
+        console.warn("Geluid kon niet afgespeeld worden:", e);
+      });
+    }
+
     setTasks((prev) =>
       prev.map((task) =>
         task.name === taskName ? { ...task, done: true } : task
@@ -72,6 +81,10 @@ function GameScreen() {
     setShowSparkles(true);
     setTimeout(() => setShowSparkles(false), 2000);
   }
+
+  useEffect(() => {
+    taskCompleteAudioRef.current = new Audio(taskCompleteSound);
+  }, []);
 
   async function downloadCertificate() {
     if (certificateRef.current) {
