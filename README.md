@@ -1,12 +1,21 @@
 ## Project information:
-Project name: "Tembo's Grote Circusavontuur"
-Project description: "Een leuke en leerzame app voor kinderen waarin ze de olifant Tembo gaan verzorgen en meer leren over hem en het wintercircus."
-Project type: "Game"
-Project language: "React + Vite + TypeScript"
-Project framework: "React"
-Project platform: "Web"
-Project target audience: "Kinderen"
-Project target devices: "Desktop, Tablet, Mobile"
+- Project name: "Tembo's Grote Circusavontuur"
+- Project description: "Een leuke en leerzame app voor kinderen waarin ze de olifant Tembo gaan verzorgen en meer leren over hem en het wintercircus."
+- Project type: "Game"
+- Project language: "React + Vite + TypeScript"
+- Project framework: "React"
+- Project platform: "Web"
+- Project target audience: "Kinderen"
+- Project target devices: "Desktop, Tablet, Mobile"
+
+## Project setup:
+1. Clone the repository: `git clone <repository-url>`
+2. Navigate to the project directory: `cd project-ar-in-wintercircus-Louis-Dries-Stef`
+3. Install dependencies: `npm install`
+4. Change the .ENV file name to .env
+5. Start the development server: `npm run dev`
+6. Open your browser and go to `http://localhost:5173`
+7. Enjoy the game!
 
 ## Project Features:
 - "Interactieve verzorging van Tembo"
@@ -23,13 +32,10 @@ Project target devices: "Desktop, Tablet, Mobile"
 - "Een platform bieden voor kinderen om hun creativiteit te uiten"
 
 ## Model Information:
-* title:	Elephant | Gajah
-* source:	https://sketchfab.com/3d-models/elephant-gajah-d53f4e537d07419caefabef2cd4bbf7b
-* author:	denys4624 (https://sketchfab.com/denys4624)
-
-## Model License:
-* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
-* requirements:	Author must be credited. Commercial use is allowed.
+* title:	Tembo the Elephant
+* description:	"3D model of the elephant from the Wintercircus for the game."
+* source:	3D model from the Wintercircus
+* author:	Stijn Spanhove
 
 ## Authors:
 - Louis Dierickx
