@@ -9,7 +9,8 @@
 - Project target devices: "Desktop, Tablet, Mobile"
 
 ## Project setup:
-1. Clone the repository: `git clone <repository-url>`
+1. Clone the repository: `git clone https://github.com/digitalproductstudio/project-ar-in-wintercircus-Louis-Dries-Stef.git`
+   or download the ZIP file from the repository and extract it.
 2. Navigate to the project directory: `cd project-ar-in-wintercircus-Louis-Dries-Stef`
 3. Install dependencies: `npm install`
 4. Change the .ENV file name to .env
