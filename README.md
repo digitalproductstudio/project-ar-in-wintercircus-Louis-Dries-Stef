@@ -15,7 +15,7 @@
 3. Install dependencies: `npm install`
 4. Change the .ENV file name to .env
 5. Start the development server: `npm run dev`
-6. Open your browser and go to `http://localhost:5173`
+6. Open the local link: `http://localhost:5174/project-ar-in-wintercircus-Louis-Dries-Stef/` from the terminal and go to your browser.
 7. Enjoy the game!
 
 ## Project Features:
