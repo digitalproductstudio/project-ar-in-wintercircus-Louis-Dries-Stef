@@ -64,22 +64,38 @@ function GameScreen() {
     }
   }
 
+  // Add a useEffect to show the first weetje when the game starts
+  useEffect(() => {
+    // Show the first weetje after a short delay
+    setTimeout(() => {
+      setActiveWeetje(0);
+    }, 1000);
+  }, []); // Empty dependency array means this runs once when component mounts
+
   function completeTask(taskName) {
     if (taskCompleteAudioRef.current) {
-      taskCompleteAudioRef.current.currentTime = 0;
       taskCompleteAudioRef.current.play().catch((e) => {
         console.warn("Geluid kon niet afgespeeld worden:", e);
       });
     }
 
+    // Find the task index and add 1 to skip the first weetje
+    const taskIndex = tasks.findIndex((task) => task.name === taskName);
+    
     setTasks((prev) =>
       prev.map((task) =>
         task.name === taskName ? { ...task, done: true } : task
       )
     );
+
+    // Show the corresponding weetje (offset by 1 since first weetje is shown at start)
+    setActiveWeetje(taskIndex + 1);
+
     setActiveMode(null);
     setShowSparkles(true);
-    setTimeout(() => setShowSparkles(false), 2000);
+    setTimeout(() => {
+      setShowSparkles(false);
+    }, 2000);
   }
 
   useEffect(() => {
@@ -175,8 +191,8 @@ function GameScreen() {
       navigator.mediaDevices
         .getUserMedia({
           video: {
-            facingMode: { exact: "environment" }
-          }
+            facingMode: { exact: "environment" },
+          },
         })
         .then((stream) => {
           video.srcObject = stream;
@@ -332,12 +348,25 @@ function GameScreen() {
                 transition={{ duration: 1 }}
               >
                 <TemboModel screenWidth={width} />
-                <WeetjesCircles weetjes={weetjes} setActiveWeetje={setActiveWeetje} />
+                <WeetjesCircles
+                  weetjes={weetjes}
+                />
                 {showSparkles && (
                   <Sparkles count={30} scale={2} size={3} color="white" />
                 )}
               </motion.group>
-              <OrbitControls enableZoom={false} enablePan={false} />
+              <OrbitControls
+                enableZoom={false} // Keep zoom disabled (or set to true if needed)
+                enablePan={false} // Allow panning (but we'll restrict it)
+                autoRotate={true}
+                autoRotateSpeed={1.5}
+                onChange={(e) => {
+                  // Zet de camera vast als je van as beweegt
+                  e.target.object.position.y = 0; // As aanpassen
+
+                  e.target.object.updateProjectionMatrix();
+                }}
+              />
             </Canvas>
           </div>
           <TaskButtons tasks={tasks} onTaskClick={handleTaskClick} />
@@ -371,7 +400,7 @@ function GameScreen() {
           resetCleaning={resetCleaning}
           handleDraw={handleDraw}
           handleTouchDraw={handleTouchDraw}
-          canvasRef={canvasRef}
+          canvasRef={canvasRef}   // <-- Corrected!
           setIsDrawing={setIsDrawing}
           screenWidth={width}
         />

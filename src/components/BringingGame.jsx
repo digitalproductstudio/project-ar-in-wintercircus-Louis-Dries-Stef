@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import itemPickUpSound from "/sounds/item-pick-up.mp3";
 
@@ -23,6 +23,35 @@ function BringingGame({
       );
     }
     collectItem(id);
+  };
+
+  // State for mobile basket/food icon
+  const [touchIcon, setTouchIcon] = useState({ visible: false, x: 0, y: 0 });
+
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      const touch = e.touches[0];
+      setTouchIcon({
+        visible: true,
+        x: touch.clientX,
+        y: touch.clientY,
+      });
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      const touch = e.touches[0];
+      setTouchIcon({
+        visible: true,
+        x: touch.clientX,
+        y: touch.clientY,
+      });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTouchIcon((s) => ({ ...s, visible: false }));
   };
 
   return (
@@ -58,6 +87,21 @@ function BringingGame({
         ></div>
       </div>
       <p className="text-white mt-2">{bringingGameProgress}% verzameld</p>
+      {/* Basket or food icon for mobile touch */}
+      {touchIcon.visible && (
+        <div
+          style={{
+            position: "fixed",
+            left: touchIcon.x - 20,
+            top: touchIcon.y - 24,
+            pointerEvents: "none",
+            zIndex: 100,
+            fontSize: 40,
+          }}
+        >
+          🧺 {/* Or use 🥕, 🍎, etc. */}
+        </div>
+      )}
     </div>
   );
 }
