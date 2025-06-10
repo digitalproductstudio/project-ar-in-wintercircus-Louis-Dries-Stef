@@ -133,7 +133,8 @@ function GameScreen() {
     }
 
     let progress = Math.floor((transparentPixels / totalPixels) * 100);
-    if (progress >= 98) progress = 100;
+    // development mode: set progress to 100 if >= 96% to simulate quick cleaning
+    if (progress >= 96) progress = 100;
     setCleaningProgress(progress);
   }
 
@@ -161,7 +162,7 @@ function GameScreen() {
     }
 
     let progress = Math.floor((transparentPixels / totalPixels) * 100);
-    if (progress >= 98) progress = 100;
+    if (progress >= 1) progress = 100;
 
     setCleaningProgress(progress);
   }
@@ -177,12 +178,12 @@ function GameScreen() {
 
   function handleFoodDrop(foodId) {
     setAvailableFood((prev) => prev.filter((f) => f.id !== foodId));
-    setFeedingGameProgress((prev) => Math.min(100, prev + 20));
+    setFeedingGameProgress((prev) => Math.min(100, prev + 10));
   }
 
   function collectItem(itemId) {
     setFallingItems((prev) => prev.filter((item) => item.id !== itemId));
-    setBringingGameProgress((prev) => Math.min(100, prev + 10));
+    setBringingGameProgress((prev) => Math.min(100, prev + 20));
   }
 
   useEffect(() => {
@@ -215,14 +216,20 @@ function GameScreen() {
   }, []);
 
   useEffect(() => {
-    if (activeMode === "cleaning" && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      ctx.fillStyle = "rgba(139,69,19,0.8)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
+    const mudPic = new Image();
+    mudPic.src = "./mudStainSquare.png";
+    mudPic.onload = () => {
+      if (activeMode === "cleaning" && canvasRef.current) {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext("2d");
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 0.8; // Set transparency
+        ctx.drawImage(mudPic, 0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1.0; // Reset to default
+      }
+    };
   }, [activeMode]);
 
   useEffect(() => {
@@ -332,6 +339,30 @@ function GameScreen() {
     }, 100);
   }
 
+  async function share() {
+    if (navigator.share && certificateRef.current) {
+      const canvas = await html2canvas(certificateRef.current);
+      const dataUrl = canvas.toDataURL("image/png");
+
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], "Tembo_Certificaat.png", { type: "image/png" });
+
+      const filesArray = [file];
+
+      navigator
+        .share({
+          title: "Tembo Certificaat",
+          text: `Ik heb mijn Tembo certificaat behaald!`,
+          files: filesArray,
+        })
+        .catch((error) => {
+          console.error("Error sharing:", error);
+        });
+    } else {
+      alert("Delen wordt niet ondersteund op dit apparaat.");
+    }
+  }
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black touch-none">
       {showCertificate && <Confetti width={width} height={height} />}
@@ -430,6 +461,7 @@ function GameScreen() {
           isDownloading={isDownloading}
           downloadCertificate={downloadCertificate}
           resetGame={resetGame}
+          share={share}
         />
       )}
       <WeetjeModal

@@ -32,20 +32,23 @@ function FeedingGame({
         <span style={{ fontSize: 24 }}>←</span>
       </button>
       <p className="text-3xl text-white mb-4">Voeder Tembo!</p>
-      <div className="relative w-full h-1/2">
-        <div className="relative w-64 h-64 mx-auto">
-          <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
+      <div className="relative w-full h-full flex items-center justify-center">
+        <div className="relative w-64 h-64">
+          <Canvas
+            camera={{ position: [1, 2, 4], fov: 50 }}
+          >
             <ambientLight />
             <directionalLight position={[2, 2, 5]} />
             <TemboModel
               screenWidth={screenWidth}
               rotation={[0, Math.PI, 0]}
-              position={[0, -1, 0]}
+              position={[0, 0, 0]} // Use dynamic position
+              scale={0.3}
             />
           </Canvas>
           <div
             id="tembo-mouth"
-            className="absolute top-[60px] left-1/2 transform -translate-x-1/2 w-[6rem] h-[5.3rem]"
+            className="absolute top-[10px] left-1/2 transform -translate-x-1/2 w-[15rem] h-[8.3rem]"
           />
         </div>
         {availableFood.map((food) => (

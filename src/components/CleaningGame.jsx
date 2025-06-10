@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
+import * as THREE from "three";
 import TemboModel from "./TemboModel";
 import cleaningSound from "/sounds/scrubbing.mp3";
 
@@ -19,6 +20,9 @@ function CleaningGame({
 
   // State for mobile sponge
   const [touchSponge, setTouchSponge] = useState({ visible: false, x: 0, y: 0 });
+
+  // State for Tembo's position
+  const [temboPosition, setTemboPosition] = useState([0, 0, 0]);
 
   // Setup audio on mount
   useEffect(() => {
@@ -47,6 +51,16 @@ function CleaningGame({
       stopAudio(true);
     }
   }, [cleaningProgress]);
+
+  // Example logic to update Tembo's position dynamically
+  useEffect(() => {
+    const updatePosition = () => {
+      setTemboPosition([Math.random() * 2 - 1, 0, Math.random() * 2 - 1]);
+    };
+
+    const interval = setInterval(updatePosition, 5000); // Update every 5 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   const playAudio = () => {
     const audio = audioRef.current;
@@ -109,6 +123,7 @@ function CleaningGame({
     setTouchSponge((s) => ({ ...s, visible: false }));
   };
 
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50">
       <button
@@ -119,15 +134,24 @@ function CleaningGame({
         <span style={{ fontSize: 24 }}>←</span>
       </button>
       <p className="text-white text-2xl mb-4">Maak Tembo schoon!</p>
-      <div className="relative w-64 h-64">
-        <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
+      <div className="relative w-96 h-96">
+        <Canvas
+          camera={{ position: [1, 2, 4], fov: 50 }}>
           <ambientLight />
           <directionalLight position={[2, 2, 5]} />
           <TemboModel
             screenWidth={screenWidth}
             rotation={[0, Math.PI, 0]}
-            position={[0, -1, 0]}
-          />
+            position={temboPosition} // Use dynamic position
+            scale={0.3}
+          >
+            {/* Dirt overlay */}
+            <meshStandardMaterial
+              map={new THREE.TextureLoader().load("./mud.jpg")}
+              transparent={true}
+              opacity={0.5}
+            />
+          </TemboModel>
         </Canvas>
         <canvas
           ref={canvasRef}
@@ -143,6 +167,7 @@ function CleaningGame({
           onTouchMove={enhancedHandleTouchDraw}
           style={{
             cursor: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='48'><text y='50%' font-size='24'>🧽</text></svg>") 16 0, auto`,
+            borderRadius: "20px",
           }}
         />
         {/* Sponge icon for mobile touch */}
@@ -161,12 +186,30 @@ function CleaningGame({
           </div>
         )}
       </div>
-      <p className="text-white mt-4">{cleaningProgress}% schoon</p>
+      <p className="text-white mt-4">
+        {(
+          cleaningProgress <= 20
+            ? "Starten maar!"
+            : cleaningProgress <= 40
+            ? "Zorg dat je goed schoonmaakt!"
+            : cleaningProgress <= 60
+            ? "Goed bezig!"
+            : cleaningProgress <= 80
+            ? "Geen plekjes overslaan!"
+            : cleaningProgress <= 90
+            ? "Bijna klaar!"
+            : cleaningProgress <= 95
+            ? "Nog even doorzetten!"
+            : cleaningProgress <= 97
+            ? "Bijna helemaal schoon!"
+            : "Fantastisch!"
+        )}
+      </p>
       <button
         onClick={resetCleaning}
         className="mt-4 bg-red-500 text-white px-6 py-2 rounded-xl text-lg hover:bg-red-600"
       >
-        Reset
+        Begin opnieuw
       </button>
     </div>
   );

@@ -4,7 +4,8 @@ function CertificateModal({
   setPlayerName,
   isDownloading,
   downloadCertificate,
-  resetGame
+  resetGame,
+  share
 }) {
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-black bg-opacity-80 fixed inset-0 z-50">
@@ -16,10 +17,10 @@ function CertificateModal({
         <h2 className="text-3xl font-extrabold text-orange-700">
           🎖️ Officieel Certificaat 🎖️
         </h2>
-        <p className="text-lg text-orange-600">Dit certificeert dat</p>
+        <p className="text-lg text-orange-600">Goed gedaan!</p>
         <h3 className="text-4xl font-bold text-green-700">{playerName}</h3>
         <p className="text-lg text-orange-600">
-          met succes Tembo heeft verzorgd!
+          Jij bent nu een echte Circus Assistent! 🎪🐘
         </p>
         <p className="text-sm text-gray-500">
           Tembo's Grote Circusavontuur - {new Date().toLocaleDateString()}
@@ -39,15 +40,24 @@ function CertificateModal({
             onClick={async () => {
               await downloadCertificate();
             }}
-            className="bg-orange-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-orange-600 w-full"
+            className="bg-orange-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-orange-600 w-full flex items-center justify-center space-x-2"
           >
-            Download Certificaat
+            <span>📥</span>
+            <span>Download Certificaat</span>
+          </button>
+          <button
+            onClick={share}
+            className="bg-blue-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-blue-600 w-full flex items-center justify-center space-x-2"
+          >
+            <span>📤</span>
+            <span>Delen</span>
           </button>
           <button
             onClick={resetGame}
-            className="bg-green-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-green-600 w-full"
+            className="bg-green-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-green-600 w-full flex items-center justify-center space-x-2"
           >
-            Speel opnieuw
+            <span>🔄</span>
+            <span>Speel opnieuw</span>
           </button>
         </div>
       )}
